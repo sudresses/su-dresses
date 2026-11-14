@@ -252,7 +252,7 @@ let sb=null,sb2=null,unsubs=[];
 const DOM='@sudresses.app';
 const mailOf=ph=>ph+DOM;
 async function loadProfiles(){
-  const r=await sb.from('profiles').select('*');if(r.error)return;
+  const r=await sb.from('profiles').select('*');if(r.error){U.userErr=r.error.message||'خطأ';return}U.userErr='';
   const o={};r.data.forEach(p=>o['u'+p.phone]={name:p.name,role:p.role,active:p.active,uid:p.id,phone:p.phone});
   S.users=o;L.users='ok';
 }
@@ -398,6 +398,8 @@ function render(){
     return;
   }
   const v=curView(),adm=isAdm();
+  if(v==='cfg'&&adm&&!U.cfgLoaded){U.cfgLoaded=true;loadProfiles().then(render)}
+  if(v!=='cfg')U.cfgLoaded=false;
   if((v==='frozen'||v==='reports')&&!adm){location.hash='home';return}
   const pal=cfgv().pal||'';if(pal)document.documentElement.setAttribute('data-pal',pal);else document.documentElement.removeAttribute('data-pal');
   const al=alerts().length;
@@ -627,7 +629,7 @@ function vCfg(){
   const acc=(t,b,o)=>'<details class="acc card" '+(o?'open':'')+'><summary>'+t+'</summary><div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">'+b+'</div></details>';
   let h=acc('كلمة المرور بتاعتي','<div class="fg">'+fld('كلمة المرور الجديدة','<input class="in" id="np" type="password" autocomplete="new-password">')+fld('تأكيدها','<input class="in" id="np2" type="password" autocomplete="new-password">')+'</div><button class="btn" style="align-self:flex-start" onclick="A.chpw()">حفظ</button>',!adm);
   if(!adm)return h;
-  h+=acc('الفريق والحسابات','<div class="list">'+users.map(u=>'<div class="row" style="grid-template-columns:1fr auto;cursor:default"><span><b>'+E(u.name)+'</b> <span class="tag '+(u.role==='admin'?'good':'')+'">'+(u.role==='admin'?'مديرة':'موظفة')+'</span>'+(u.active===false?' <span class="tag bad">موقوف</span>':'')+'<span class="sub tnum" style="display:block">'+E(u.id.slice(1))+'</span></span><span style="display:flex;gap:6px">'+(u.id!==U.me.id?'<button class="btn sm out" onclick="A.userToggle(\''+u.id+'\')">'+(u.active===false?'تفعيل':'إيقاف')+'</button>':'')+'</span></div>').join('')+'</div><h4 style="margin:6px 0 0">إضافة حساب</h4><div class="fg">'+fld('الاسم','<input class="in" id="un">')+fld('الموبايل','<input class="in" id="up" inputmode="tel">')+fld('كلمة المرور','<input class="in" id="uw" type="password" autocomplete="new-password">')+fld('الصلاحية','<select class="in" id="ur"><option value="staff">موظفة</option><option value="admin">مديرة</option></select>')+'</div><button class="btn" style="align-self:flex-start" onclick="A.addUser()">إضافة</button><p class="sub">الحساب الجديد بيشتغل فورًا. لو موظفة نسيت كلمة المرور، غيّريها من لوحة Supabase ← Authentication ← Users.</p>');
+  h+=acc('الفريق والحسابات','<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>'+users.length+' حساب</b><button class="btn sm out" onclick="A.reloadUsers()">تحديث القايمة</button>'+(U.userErr?'<span class="tag bad">مشكلة في تحميل الحسابات: '+E(U.userErr)+'</span>':'')+'</div><div class="list">'+(users.length?'':'<p class="mu">مفيش حسابات ظاهرة. دوسي تحديث القايمة.</p>')+users.map(u=>'<div class="row" style="grid-template-columns:1fr auto;cursor:default"><span><b>'+E(u.name)+'</b> <span class="tag '+(u.role==='admin'?'good':'')+'">'+(u.role==='admin'?'مديرة':'موظفة')+'</span>'+(u.active===false?' <span class="tag bad">موقوف أو لسه متفعّلش</span>':' <span class="tag good">شغّال</span>')+(u.id===U.me.id?' <span class="tag">أنتِ</span>':'')+'<span class="sub tnum" style="display:block">'+E(u.id.slice(1))+'</span></span><span style="display:flex;gap:6px">'+(u.id!==U.me.id?'<button class="btn sm out" onclick="A.userToggle(\''+u.id+'\')">'+(u.active===false?'تفعيل':'إيقاف')+'</button>':'')+'</span></div>').join('')+'</div><h4 style="margin:6px 0 0">إضافة حساب</h4><div class="fg">'+fld('الاسم','<input class="in" id="un">')+fld('الموبايل','<input class="in" id="up" inputmode="tel">')+fld('كلمة المرور','<input class="in" id="uw" type="password" autocomplete="new-password">')+fld('الصلاحية','<select class="in" id="ur"><option value="staff">موظفة</option><option value="admin">مديرة</option></select>')+'</div><button class="btn" style="align-self:flex-start" onclick="A.addUser()">إضافة</button><p class="sub">الحساب الجديد بيشتغل فورًا. لو موظفة نسيت كلمة المرور، غيّريها من لوحة Supabase ← Authentication ← Users.</p>');
   h+=acc('ألوان البرنامج','<p class="sub">اختاري ألوان البرنامج كله. بتتطبّق فورًا على كل الشاشات والفريق.</p><div class="g2">'+pals.map(p=>'<button class="pal '+((c.pal||'')===p[0]?'on':'')+'" onclick="A.pal(\''+p[0]+'\')"><span><b>'+p[1]+'</b><span class="sub" style="display:block">'+p[2]+'</span></span><span class="sw">'+p[3].map(x=>'<i style="background:'+x+'"></i>').join('')+'</span></button>').join('')+'</div>',false);
   h+=acc('إعدادات الشغل','<div class="fg">'+fld('أيام التجهيز بعد الإرجاع','<input class="in" id="pdays" type="number" min="0" max="14" value="'+prepDays()+'">')+fld('أسماء البائعات (فاصلة بينهم)','<input class="in" id="sell" value="'+E(sellers().join('، '))+'">')+'</div><button class="btn" style="align-self:flex-start" onclick="A.saveCfg()">حفظ</button>');
   h+=acc('سجل الحركة','<div class="list">'+(S.log.length?S.log.map(l=>'<div class="kv"><span><b>'+E(l.action)+'</b><span class="sub" style="display:block">'+E(l.detail)+'</span></span><span class="sub" style="text-align:left">'+E(l.by)+'<br>'+(l.at?l.at.slice(0,10)+' '+new Date(l.at).toTimeString().slice(0,5):'')+'</span></div>').join(''):'<p class="mu">مفيش حركة متسجّلة.</p>')+'</div>');
@@ -903,6 +905,7 @@ const A={
       setTimeout(()=>location.reload(),1200);
     }catch(e){toast('الاسترجاع وقف عند مشكلة: '+((e&&e.message)||'جرّبي تاني'))}
   },
+  async reloadUsers(){await loadProfiles();render();toast(U.userErr?'مقدرتش أحمّل الحسابات':'اتحدّثت القايمة')},
   async backup(){
     if(!dl){toast('التحميل مش متاح هنا');return}
     const data=JSON.stringify({exportedAt:new Date().toISOString(),items:S.items,costs:S.costs,clients:S.clients,bookings:S.bookings,payments:S.payments,expenses:S.expenses,notes:S.notes,cfg:S.cfg,photos:S.photos},null,1);
