@@ -632,7 +632,7 @@ function vCfg(){
   h+=acc('إعدادات الشغل','<div class="fg">'+fld('أيام التجهيز بعد الإرجاع','<input class="in" id="pdays" type="number" min="0" max="14" value="'+prepDays()+'">')+fld('أسماء البائعات (فاصلة بينهم)','<input class="in" id="sell" value="'+E(sellers().join('، '))+'">')+'</div><button class="btn" style="align-self:flex-start" onclick="A.saveCfg()">حفظ</button>');
   h+=acc('سجل الحركة','<div class="list">'+(S.log.length?S.log.map(l=>'<div class="kv"><span><b>'+E(l.action)+'</b><span class="sub" style="display:block">'+E(l.detail)+'</span></span><span class="sub" style="text-align:left">'+E(l.by)+'<br>'+(l.at?l.at.slice(0,10)+' '+new Date(l.at).toTimeString().slice(0,5):'')+'</span></div>').join(''):'<p class="mu">مفيش حركة متسجّلة.</p>')+'</div>');
   const demo=Object.keys(S.bookings).some(k=>S.bookings[k].demo)||Object.keys(S.items).some(k=>S.items[k].demo);
-  h+=acc('نسخة احتياطية وبيانات','<p class="sub">حمّلي نسخة كاملة من البيانات في ملف. الأفضل تعمليها كل أسبوع.</p><button class="btn" style="align-self:flex-start" onclick="A.backup()">تحميل نسخة احتياطية</button>'+(demo?'<hr style="width:100%;border:0;border-top:1px solid var(--line)"><p class="sub">في بيانات تجريبية في البرنامج (قطع وحجوزات ومصاريف أمثلة).</p><button class="btn bad" style="align-self:flex-start" onclick="A.clearDemo()">مسح البيانات التجريبية</button>':''));
+  h+=acc('نسخة احتياطية وبيانات','<p class="sub">حمّلي نسخة كاملة من البيانات في ملف. الأفضل تعمليها كل أسبوع.</p><button class="btn" style="align-self:flex-start" onclick="A.backup()">تحميل نسخة احتياطية</button><hr style="width:100%;border:0;border-top:1px solid var(--line)"><p class="sub">استرجاع من نسخة احتياطية: اختاري ملف النسخة اللي حمّلتيها قبل كده. البيانات الموجودة بنفس الرقم هتتبدّل، والباقي هيفضل زي ما هو.</p><input type="file" id="rfile" accept=".json,application/json" class="in" style="padding-top:8px" onchange="A.restorePick(this)">'+(demo?'<hr style="width:100%;border:0;border-top:1px solid var(--line)"><p class="sub">في بيانات تجريبية في البرنامج (قطع وحجوزات ومصاريف أمثلة).</p><button class="btn bad" style="align-self:flex-start" onclick="A.clearDemo()">مسح البيانات التجريبية</button>':''));
   return h;
 }
 function vGuide(){
@@ -874,6 +874,35 @@ const A={
     if(u.error){toast('اتعمل الحساب بس مقدرتش أفعّله: '+u.error.message);return}
     await loadProfiles();logA('إضافة حساب',nm+' · '+r);toast('اتضاف الحساب');render()},
   async userToggle(id){const u=S.users[id];const r=await sb.from('profiles').update({active:u.active===false}).eq('phone',id.slice(1));if(r.error){toast('حصلت مشكلة: '+r.error.message);return}await loadProfiles();logA('تغيير حالة حساب',u.name);render()},
+  restorePick(inp){
+    const f=inp.files&&inp.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      let j;try{j=JSON.parse(rd.result)}catch(e){toast('الملف ده مش نسخة احتياطية صحيحة');inp.value='';return}
+      const cols=['items','photos','costs','clients','bookings','payments','expenses','notes','cfg'];
+      const have=cols.filter(c=>j[c]&&typeof j[c]==='object');
+      if(!have.length){toast('مفيش بيانات معروفة في الملف');inp.value='';return}
+      U.restore=j;U.restoreCols=have;
+      const LB={items:'قطع',photos:'صور',costs:'أسعار شراء',clients:'عميلات',bookings:'حجوزات',payments:'دفعات',expenses:'مصاريف',notes:'ملاحظات',cfg:'إعدادات'};
+      openM(sheet('استرجاع النسخة الاحتياطية','<p>النسخة اتحفظت يوم <b>'+E((j.exportedAt||'').slice(0,10)||'غير معروف')+'</b> وفيها:</p><div class="list">'+have.map(c=>'<div class="kv"><span>'+LB[c]+'</span><b>'+Object.keys(j[c]).length+'</b></div>').join('')+'</div><p class="sub">البيانات اللي ليها نفس الرقم هتتبدّل بالموجودة في النسخة. أي بيانات جديدة اتسجّلت بعد النسخة مش هتتمسح. الأمر ده مينفعش يتراجع عنه.</p><button class="btn bad" onclick="A.doRestore()">أيوه، استرجعي</button><button class="btn out" onclick="A.close()">إلغاء</button>'),{st:1});
+    };
+    rd.readAsText(f);
+  },
+  async doRestore(){
+    const j=U.restore,cols=U.restoreCols||[];if(!j)return;
+    const rows=[];
+    cols.forEach(c=>Object.keys(j[c]).forEach(id=>{const d=j[c][id];if(d&&typeof d==='object')rows.push({collection:c,id,data:d,updated_at:new Date().toISOString()})}));
+    closeM();toast('بنسترجع '+rows.length+' سجل... استني');
+    try{
+      for(let i=0;i<rows.length;i+=100){
+        const r=await sb.from('docs').upsert(rows.slice(i,i+100));
+        if(r.error)throw r.error;
+      }
+      await logA('استرجاع نسخة احتياطية',rows.length+' سجل');
+      U.restore=null;toast('تم الاسترجاع. هنحدّث الصفحة');
+      setTimeout(()=>location.reload(),1200);
+    }catch(e){toast('الاسترجاع وقف عند مشكلة: '+((e&&e.message)||'جرّبي تاني'))}
+  },
   async backup(){
     if(!dl){toast('التحميل مش متاح هنا');return}
     const data=JSON.stringify({exportedAt:new Date().toISOString(),items:S.items,costs:S.costs,clients:S.clients,bookings:S.bookings,payments:S.payments,expenses:S.expenses,notes:S.notes,cfg:S.cfg,photos:S.photos},null,1);
