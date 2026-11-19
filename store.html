@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4a181c">
+<title>SU Dresses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
+<style>
+:root{--brand:#4a181c;--brand2:#5e1f24;--accent:#8a5a55;--sand:#e9dfd3;--cream:#faf6f1;--card:#fff;--ink:#3a1216;--muted:#85706b;--line:#e7dcd2;--good:#3f7a58;--bad:#b44a5f;--font:'Cairo','Segoe UI',Tahoma,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.7;direction:rtl}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:0;z-index:30;background:rgba(250,246,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.bar{display:flex;align-items:center;gap:12px;padding:10px 0}
+.brand{font-weight:800;font-size:24px;letter-spacing:.3px;color:var(--brand);flex:1}
+.brand small{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:14px;padding:0 20px;height:46px;font-weight:700;display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn.out{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+.btn.wa{background:#2e7d57}
+.btn.sm{height:40px;padding:0 16px;font-size:14px}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:36px 0 40px}
+.hero h1{margin:0 0 8px;font-size:clamp(26px,5vw,40px);line-height:1.3;font-weight:800;text-wrap:balance}
+.hero p{margin:0 0 20px;opacity:.9;max-width:560px}
+.hero .btn{background:#fff;color:var(--brand)}
+.hero .btn.out{background:transparent;color:#fff;border-color:rgba(255,255,255,.7)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.pills{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 6px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 18px;font-weight:600}
+.pill.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;padding:12px 0 30px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.ph{aspect-ratio:3/4;background:var(--sand);display:grid;place-items:center;color:var(--accent);overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph svg{width:48px;height:48px;opacity:.5}
+.cb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cb b{font-size:17px}
+.cb .m{color:var(--muted);font-size:13px}
+.price{display:flex;gap:10px;flex-wrap:wrap;font-weight:700}
+.price span{background:var(--sand);border-radius:10px;padding:2px 10px;font-size:14px}
+.cb .btn{margin-top:auto;justify-content:center}
+.tailor{background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px;margin:10px 0 34px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.tailor h2{margin:0 0 4px;font-size:24px}
+.tailor p{margin:0;color:var(--muted);max-width:520px}
+.tailor>div{flex:1;min-width:240px}
+.ico{width:64px;height:64px;border-radius:18px;background:var(--sand);color:var(--brand);display:grid;place-items:center;flex:none}
+.ico svg{width:34px;height:34px}
+footer{border-top:1px solid var(--line);padding:22px 0 calc(28px + env(safe-area-inset-bottom,0px));color:var(--muted);text-align:center;font-size:14px}
+.ov{position:fixed;inset:0;background:rgba(40,12,14,.5);backdrop-filter:blur(3px);z-index:100;display:grid;place-items:center;padding:16px}
+.sheet{background:#fff;border-radius:22px;width:min(520px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.mh h3{margin:0;font-size:20px}
+.x{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--cream);font-size:20px;line-height:1}
+.mb{padding:16px 18px 22px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-weight:700;font-size:14px}
+.in{width:100%;border:1px solid var(--line);border-radius:12px;padding:0 14px;height:46px;background:#fff;outline:0}
+textarea.in{padding:10px 14px;height:auto;min-height:90px;resize:vertical}
+.in:focus{border-color:var(--brand)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;background:var(--sand);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:none;border-radius:10px;padding:8px;font-weight:700}
+.seg button.on{background:var(--brand);color:#fff}
+.err{color:var(--bad);font-weight:600;font-size:14px;min-height:1px}
+.up{border:2px dashed var(--line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;background:var(--cream)}
+.up img{width:72px;height:72px;object-fit:cover;border-radius:12px;display:none}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+.ok{text-align:center;padding:10px 0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.ok .ico{background:#e4f0e9;color:var(--good)}
+.note{color:var(--muted);font-size:13px}
+@media (max-width:560px){.fg{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr;gap:10px}.cb b{font-size:15px}.btn{padding:0 14px}.hero{padding:26px 0 30px}.tailor{padding:18px}.bar .btn span.t{display:none}.sheet{align-self:end;border-radius:22px 22px 0 0;max-height:94vh}.ov{padding:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar"><div class="brand">SU Dresses<small>إيجار وشراء وتفصيل فساتين</small></div><button class="btn out sm" id="hdrTailor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 5-2 3 3 10H7l3-10-2-3z"/></svg><span class="t">تفصيل فستان</span><span class="t" style="display:none"></span></button></div></header>
+
+<section class="hero"><div class="wrap"><h1>فستانك لمناسبتك، جاهز أو على مقاسك</h1><p>اختاري من الفساتين والشنط المعروضة للإيجار أو الشراء، أو ابعتي لنا صورة التصميم اللي نفسك فيه ونفصّله ليكي.</p><div class="row"><a class="btn" href="#items">تصفّحي الفساتين</a><button class="btn out" id="heroTailor">تفصيل فستان بمواصفات خاصة</button></div></div></section>
+
+<main class="wrap">
+  <div class="pills" id="pills"></div>
+  <div id="items"><div class="grid" id="grid"></div><p class="note" id="msg" style="text-align:center"></p></div>
+  <section class="tailor" id="tailor"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg></div><div><h2>تفصيل فستان بمواصفات خاصة</h2><p>ابعتي اسمك ورقم موبايلك وصورة الفستان اللي عايزاه، وهنتواصل معاكي نحدد المقاسات والسعر وميعاد التسليم.</p></div><button class="btn" id="tailorBtn">اطلبي تفصيل</button></section>
+</main>
+<footer><div class="wrap" id="foot">SU Dresses</div></footer>
+<div id="modal"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>(Math.round((+n||0)*100)/100).toLocaleString('en-US')+' ج.م';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const C=window.SU_CONFIG||{};
+const todayS=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const normPhone=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'');
+const okPhone=p=>/^01[0125]\d{8}$/.test(p);
+const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 5-2 3 3 10H7l3-10-2-3z"/></svg>';
+let sb=null,items=[],photos={},kind='';
+let pendingPhoto=null;
+
+function msg(t){$('#msg').textContent=t||''}
+function render(){
+  const list=items.filter(i=>!kind||i.kind===kind);
+  $('#pills').innerHTML=[['','الكل'],['dress','فساتين'],['bag','شنط وكلتش']].map(k=>'<button class="pill '+(kind===k[0]?'on':'')+'" data-k="'+k[0]+'">'+k[1]+'</button>').join('');
+  $('#grid').innerHTML=list.map(i=>'<article class="card"><div class="ph" data-ph="'+E(i.code)+'">'+(photos[i.code]?'<img alt="'+E(i.name)+'" src="'+photos[i.code]+'">':ICON)+'</div><div class="cb"><b>'+E(i.name||i.code)+'</b><div class="m">'+(i.color?E(i.color)+' · ':'')+'#'+E(i.code)+'</div><div class="price">'+(+i.rent?'<span>إيجار '+money(i.rent)+'</span>':'')+(+i.salePrice?'<span>شراء '+money(i.salePrice)+'</span>':'')+'</div><button class="btn sm" data-order="'+E(i.code)+'">اطلبي الآن</button></div></article>').join('');
+}
+async function loadPhotos(codes){
+  for(let i=0;i<codes.length;i+=8){
+    const part=codes.slice(i,i+8);
+    try{
+      const r=await sb.from('docs').select('id,data').eq('collection','photos').in('id',part);
+      if(r.data)r.data.forEach(x=>{if(x.data&&x.data.data)photos[x.id]=x.data.data});
+      render();
+    }catch(e){}
+  }
+}
+async function boot(){
+  if(C.whatsapp)$('#foot').innerHTML='للتواصل مباشرة: <a href="https://wa.me/'+E(String(C.whatsapp).replace(/\D/g,''))+'" target="_blank" rel="noopener">واتساب</a>';
+  if(!C.url||!C.key||/PASTE/.test(C.url+C.key)||!window.supabase){msg('الموقع لسه متظبطش. خدي الإعدادات من ملف config.js.');return}
+  sb=window.supabase.createClient(C.url,C.key,{auth:{persistSession:false,autoRefreshToken:false}});
+  msg('بنحمّل الفساتين...');
+  const r=await sb.from('docs').select('id,data').eq('collection','items').order('id');
+  if(r.error){msg('مقدرناش نحمّل الفساتين دلوقتي. جرّبي تاني بعد شوية.');return}
+  items=r.data.map(x=>Object.assign({code:x.id},x.data)).filter(i=>!i.off&&!i.hideStore);
+  msg(items.length?'':'لسه مفيش قطع معروضة. ارجعي قريب.');
+  render();loadPhotos(items.map(i=>i.code));
+}
+
+/* ---------- modal helpers ---------- */
+function open(title,html){
+  $('#modal').innerHTML='<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true"><div class="mh"><h3>'+E(title)+'</h3><button class="x" id="mx" aria-label="إغلاق">×</button></div><div class="mb">'+html+'</div></div></div>';
+  $('#mx').onclick=close;$('#ov').onclick=e=>{if(e.target.id==='ov')close()};
+}
+function close(){$('#modal').innerHTML='';pendingPhoto=null}
+function done(title,text){
+  const wa=C.whatsapp?'<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+E(String(C.whatsapp).replace(/\D/g,''))+'">كلّمينا على واتساب</a>':'';
+  open(title,'<div class="ok"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div><b style="font-size:20px">وصلنا طلبك</b><p style="margin:0;color:var(--muted)">'+E(text)+'</p>'+wa+'<button class="btn out" id="okx">تمام</button></div>');
+  $('#okx').onclick=close;
+}
+function cool(){try{const t=+localStorage.getItem('su_last')||0;if(Date.now()-t<30000)return true}catch(e){}return false}
+function stamp(){try{localStorage.setItem('su_last',String(Date.now()))}catch(e){}}
+async function send(data,btn,errEl,okTitle,okText){
+  if(cool()){errEl.textContent='استني شوية قبل ما تبعتي طلب تاني.';return}
+  btn.disabled=true;btn.textContent='بنبعت...';
+  const row={collection:'orders',id:'o'+uid(),data:Object.assign({status:'new',createdAt:new Date().toISOString(),source:'web'},data)};
+  const r=await sb.from('docs').insert(row);
+  if(r.error){btn.disabled=false;btn.textContent='إرسال الطلب';errEl.textContent='مقدرناش نبعت الطلب. جرّبي تاني أو كلّمينا واتساب.';return}
+  stamp();done(okTitle,okText);
+}
+
+/* ---------- order a dress / bag ---------- */
+function orderForm(code){
+  const it=items.find(i=>i.code===code);if(!it)return;
+  const canRent=+it.rent>0,canBuy=+it.salePrice>0;
+  let type=canRent?'rent':'buy';
+  open('طلب '+(it.name||it.code),
+   '<div style="display:flex;gap:12px;align-items:center"><div class="ph" style="width:72px;aspect-ratio:1;border-radius:14px;flex:none">'+(photos[code]?'<img alt="" src="'+photos[code]+'">':ICON)+'</div><div><b>'+E(it.name||'')+'</b><div class="note">#'+E(code)+(it.color?' · '+E(it.color):'')+'</div></div></div>'
+   +((canRent&&canBuy)?'<div class="seg" id="seg"><button type="button" data-t="rent" class="on">إيجار '+money(it.rent)+'</button><button type="button" data-t="buy">شراء '+money(it.salePrice)+'</button></div>':'<div class="note">'+(canRent?'إيجار بـ '+money(it.rent):'شراء بـ '+money(it.salePrice))+'</div>')
+   +'<div class="fg"><div class="f"><label for="oname">الاسم</label><input class="in" id="oname" autocomplete="name"></div><div class="f"><label for="ophone">رقم الموبايل</label><input class="in" id="ophone" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></div></div>'
+   +'<div class="fg" id="dates"><div class="f"><label for="od1">من تاريخ</label><input class="in" type="date" id="od1" min="'+todayS()+'"></div><div class="f"><label for="od2">إلى تاريخ</label><input class="in" type="date" id="od2" min="'+todayS()+'"></div></div>'
+   +'<div class="f"><label for="oaddr">العنوان (للتوصيل، اختياري)</label><input class="in" id="oaddr" autocomplete="street-address"></div>'
+   +'<div class="f"><label for="onote">ملاحظات</label><textarea class="in" id="onote" style="min-height:70px"></textarea></div>'
+   +'<input class="hp" id="oweb" tabindex="-1" autocomplete="off" aria-hidden="true">'
+   +'<div class="note">ده طلب مش دفع. هنكلّمك نأكد التوافر وطريقة الدفع والاستلام.</div><div class="err" id="oerr"></div><button class="btn" id="osend">إرسال الطلب</button>');
+  const setT=t=>{type=t;const dv=$('#dates');if(dv)dv.style.display=t==='rent'?'':'none';document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))};
+  setT(type);
+  document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>setT(b.dataset.t));
+  $('#osend').onclick=()=>{
+    const err=$('#oerr');err.textContent='';
+    if($('#oweb').value)return;
+    const name=$('#oname').value.trim(),phone=normPhone($('#ophone').value);
+    if(name.length<2){err.textContent='اكتبي اسمك.';return}
+    if(!okPhone(phone)){err.textContent='رقم الموبايل لازم يكون 11 رقم ويبدأ بـ 01.';return}
+    let d1='',d2='';
+    if(type==='rent'){d1=$('#od1').value;d2=$('#od2').value;if(!d1||!d2||d2<d1||d1<todayS()){err.textContent='اختاري تواريخ الإيجار صح.';return}}
+    send({type,name,phone,itemCode:code,itemName:it.name||'',price:type==='rent'?+it.rent:+it.salePrice,dFrom:d1,dTo:d2,address:$('#oaddr').value.trim().slice(0,300),notes:$('#onote').value.trim().slice(0,800)},$('#osend'),err,'وصلنا طلبك','هنكلّمك على الرقم اللي كتبتيه في أقرب وقت.');
+  };
+}
+
+/* ---------- custom tailoring ---------- */
+function tailorForm(){
+  open('تفصيل فستان',
+   '<p style="margin:0;color:var(--muted)">اكتبي بياناتك وارفعي صورة الفستان اللي عايزاه، وهنتواصل معاكي.</p>'
+   +'<div class="fg"><div class="f"><label for="tname">الاسم</label><input class="in" id="tname" autocomplete="name"></div><div class="f"><label for="tphone">رقم الموبايل</label><input class="in" id="tphone" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></div></div>'
+   +'<div class="f"><label>صورة الفستان المطلوب تصميمه</label><div class="up"><img id="tprev" alt=""><div style="flex:1;min-width:0"><input type="file" id="tfile" accept="image/*"><div class="note">صورة واحدة. تقدري تصوّري من الموبايل.</div></div></div></div>'
+   +'<div class="f"><label for="tdate">تاريخ المناسبة (اختياري)</label><input class="in" type="date" id="tdate" min="'+todayS()+'"></div>'
+   +'<div class="f"><label for="tnote">مواصفات إضافية</label><textarea class="in" id="tnote" placeholder="اللون، القماش، المقاسات، أي تفاصيل تانية"></textarea></div>'
+   +'<input class="hp" id="tweb" tabindex="-1" autocomplete="off" aria-hidden="true"><div class="err" id="terr"></div><button class="btn" id="tsend">إرسال الطلب</button>');
+  pendingPhoto=null;
+  $('#tfile').onchange=function(){
+    const f=this.files&&this.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{const im=new Image();im.onload=()=>{
+      const M=1000,k=Math.min(1,M/Math.max(im.width,im.height)),cv=document.createElement('canvas');
+      cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+      let q=.8,d=cv.toDataURL('image/jpeg',q);while(d.length>320000&&q>.4){q-=.1;d=cv.toDataURL('image/jpeg',q)}
+      pendingPhoto=d;const pv=$('#tprev');pv.src=d;pv.style.display='block';
+    };im.onerror=()=>{$('#terr').textContent='الصورة دي مش مدعومة.'};im.src=rd.result};
+    rd.readAsDataURL(f);
+  };
+  $('#tsend').onclick=()=>{
+    const err=$('#terr');err.textContent='';
+    if($('#tweb').value)return;
+    const name=$('#tname').value.trim(),phone=normPhone($('#tphone').value);
+    if(name.length<2){err.textContent='اكتبي اسمك.';return}
+    if(!okPhone(phone)){err.textContent='رقم الموبايل لازم يكون 11 رقم ويبدأ بـ 01.';return}
+    if(!pendingPhoto){err.textContent='ارفعي صورة الفستان المطلوب.';return}
+    send({type:'custom',name,phone,photo:pendingPhoto,eventDate:$('#tdate').value||'',notes:$('#tnote').value.trim().slice(0,1200)},$('#tsend'),err,'وصلنا طلب التفصيل','هنراجع الصورة ونكلّمك على الرقم اللي كتبتيه.');
+  };
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-order],[data-k]');if(!t)return;
+  if(t.dataset.order)orderForm(t.dataset.order);
+  else if(t.dataset.k!==undefined){kind=t.dataset.k;render()}
+});
+['hdrTailor','heroTailor','tailorBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=tailorForm});
+render();boot();
+})();
+</script>
+</body>
+</html>

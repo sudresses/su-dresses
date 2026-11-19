@@ -190,7 +190,7 @@ const ic=n=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColo
 
 /* ---------- state ---------- */
 let db=null,dl=null;
-const S={items:{},photos:{},costs:{},clients:{},bookings:{},payments:{},expenses:{},users:{},notes:{},cfg:{},log:[]};
+const S={orders:{},items:{},photos:{},costs:{},clients:{},bookings:{},payments:{},expenses:{},users:{},notes:{},cfg:{},log:[]};
 const L={};
 const U={me:null,date:TODAY(),q:'',f:{},exp:{desc:'',amt:'',from:'كاش',type:'مصروف تشغيلي'},preview:false,rper:'monthly',rdate:TODAY(),lim:50,mr:null,newType:false,note:''};
 const METHODS=['كاش','إنستاباي','فيزا','محفظة'];
@@ -256,10 +256,10 @@ async function loadProfiles(){
   const o={};r.data.forEach(p=>o['u'+p.phone]={name:p.name,role:p.role,active:p.active,uid:p.id,phone:p.phone});
   S.users=o;L.users='ok';
 }
-function stopSubs(){unsubs.forEach(f=>{try{f()}catch(e){}});unsubs=[];['items','photos','costs','clients','bookings','payments','expenses','notes','cfg'].forEach(n=>S[n]={});S.log=[];S.users={}}
+function stopSubs(){unsubs.forEach(f=>{try{f()}catch(e){}});unsubs=[];['items','photos','costs','clients','bookings','payments','expenses','notes','cfg','orders'].forEach(n=>S[n]={});S.log=[];S.users={}}
 function startSubs(){
   stopSubs();
-  ['items','photos','costs','clients','bookings','payments','expenses','notes','cfg'].forEach(n=>sub(n,db.collection(n)));
+  ['items','photos','costs','clients','bookings','payments','expenses','notes','cfg','orders'].forEach(n=>sub(n,db.collection(n)));
   sub('log',db.collection('log').orderBy('at','desc').limit(150),true);
 }
 async function enter(session){
@@ -370,11 +370,13 @@ const val=id=>{const e=document.getElementById(id);return e?e.value:''};
 
 /* ---------- render ---------- */
 let rq=0;function sched(){clearTimeout(rq);rq=setTimeout(()=>{render();if(U.mr){const a=document.activeElement;if(!(a&&$('#modal').contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))paintM(U.mr)}},60)}
-const VIEWS={home:['الرئيسية',vHome],dresses:['الفساتين والشنط',vDresses],bookings:['إدارة الحجوزات',vBookings],today:['صفحة اليوم',vDay],prep:['تجهيزات',vPrep],clients:['العملاء',vClients],deposits:['التأمينات',vDeposits],frozen:['الأرصدة المجمّدة',vFrozen],reports:['التقارير',vReports],cfg:['الإعدادات',vCfg],guide:['الدليل',vGuide]};
-const NAV=[['home','الرئيسية','home'],['dresses','الفساتين','dress'],['bookings','الحجوزات','cal'],['today','صفحة اليوم','today'],['prep','تجهيزات','prep'],['clients','العملاء','users'],['deposits','التأمينات','shield'],['frozen','الأرصدة المجمّدة','wallet',1],['reports','التقارير','chart',1],['cfg','الإعدادات','gear'],['guide','الدليل','help']];
+const VIEWS={home:['الرئيسية',vHome],dresses:['الفساتين والشنط',vDresses],bookings:['إدارة الحجوزات',vBookings],orders:['طلبات الموقع',vOrders],today:['صفحة اليوم',vDay],prep:['تجهيزات',vPrep],clients:['العملاء',vClients],deposits:['التأمينات',vDeposits],frozen:['الأرصدة المجمّدة',vFrozen],reports:['التقارير',vReports],cfg:['الإعدادات',vCfg],guide:['الدليل',vGuide]};
+const NAV=[['home','الرئيسية','home'],['dresses','الفساتين','dress'],['bookings','الحجوزات','cal'],['orders','طلبات الموقع','bag'],['today','صفحة اليوم','today'],['prep','تجهيزات','prep'],['clients','العملاء','users'],['deposits','التأمينات','shield'],['frozen','الأرصدة المجمّدة','wallet',1],['reports','التقارير','chart',1],['cfg','الإعدادات','gear'],['guide','الدليل','help']];
 const curView=()=>{const h=(location.hash||'').slice(1);return VIEWS[h]?h:'home'};
+const newOrders=()=>Object.keys(S.orders).filter(k=>S.orders[k].status==='new').length;
 function alerts(){
   const t=TODAY(),bs=bkList(),a=[];
+  const no=newOrders();if(no)a.push({k:'warn',t:no+' طلب جديد من الموقع',s:'راجعيهم من طلبات الموقع',b:null});
   bs.filter(b=>b.status==='delivered'&&b.returnDate<t).forEach(b=>a.push({k:'bad',t:'متأخرة في الإرجاع',s:b.itemCode+' · '+clientName(b.clientId)+' · كان لازم ترجع '+fd(b.returnDate),b:b.id}));
   bs.filter(b=>b.status==='delivered'&&(+b.dep||0)>depIn(b)).forEach(b=>a.push({k:'bad',t:'تأمين لسه ما اتقبضش',s:b.itemCode+' · '+clientName(b.clientId)+' · '+money((+b.dep)-depIn(b)),b:b.id}));
   bs.filter(b=>b.status==='booked'&&b.deliverDate<=t&&!b.ready).forEach(b=>a.push({k:'warn',t:'قطعة ميعاد تسليمها '+(b.deliverDate<t?'فات':'النهاردة')+' ومش جاهزة',s:b.itemCode+' · '+clientName(b.clientId),b:b.id}));
@@ -408,7 +410,7 @@ function render(){
   if(a&&a.id&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$('#view')&&$('#view').contains(a))keep={id:a.id,s:a.selectionStart,e:a.selectionEnd};
   const body=VIEWS[v][1]();
   const tabs=[['home','الرئيسية','home'],['bookings','الحجوزات','cal'],['today','صفحة اليوم','today'],['dresses','الفساتين','dress']];
-  root.innerHTML='<div class="app"><aside class="side"><div class="logo"><b>SU Dresses</b><small>نظام إدارة الأتيليه</small></div>'+nav.map(n=>'<button class="nv '+(n[0]===v?'on':'')+'" onclick="A.go(\''+n[0]+'\')">'+ic(n[2])+n[1]+'</button>').join('')+'<div class="me"><div class="av">'+E((U.me.name||'?').slice(0,1))+'</div><div>'+E(U.me.name)+'<small>'+(U.me.role==='admin'?'المديرة':'موظفة')+'</small></div><button onclick="A.logout()" aria-label="خروج">'+ic('out')+'</button></div></aside>'
+  root.innerHTML='<div class="app"><aside class="side"><div class="logo"><b>SU Dresses</b><small>نظام إدارة الأتيليه</small></div>'+nav.map(n=>'<button class="nv '+(n[0]===v?'on':'')+'" onclick="A.go(\''+n[0]+'\')">'+ic(n[2])+n[1]+(n[0]==='orders'&&newOrders()?'<span class="tag warn" style="margin-inline-start:auto;padding:0 8px">'+newOrders()+'</span>':'')+'</button>').join('')+'<div class="me"><div class="av">'+E((U.me.name||'?').slice(0,1))+'</div><div>'+E(U.me.name)+'<small>'+(U.me.role==='admin'?'المديرة':'موظفة')+'</small></div><button onclick="A.logout()" aria-label="خروج">'+ic('out')+'</button></div></aside>'
   +'<div class="main"><header class="top"><button class="ib" onclick="A.more()" aria-label="القائمة">'+ic('menu')+'</button><h1>'+VIEWS[v][0]+'</h1>'
   +'<div class="sbox hd-only">'+ic('search')+'<input id="gq" placeholder="ابحثي بالاسم، رقم الحجز أو الطلب، كود القطعة" onkeydown="if(event.key===\'Enter\')A.search(this.value)"></div>'
   +'<div class="chip-d">'+fd(TODAY())+'</div>'
@@ -638,6 +640,39 @@ function vCfg(){
   h+=acc('نسخة احتياطية وبيانات','<p class="sub">حمّلي نسخة كاملة من البيانات في ملف. الأفضل تعمليها كل أسبوع.</p><button class="btn" style="align-self:flex-start" onclick="A.backup()">تحميل نسخة احتياطية</button><hr style="width:100%;border:0;border-top:1px solid var(--line)"><p class="sub">استرجاع من نسخة احتياطية: اختاري ملف النسخة اللي حمّلتيها قبل كده. البيانات الموجودة بنفس الرقم هتتبدّل، والباقي هيفضل زي ما هو.</p><input type="file" id="rfile" accept=".json,application/json" class="in" style="padding-top:8px" onchange="A.restorePick(this)">'+(demo?'<hr style="width:100%;border:0;border-top:1px solid var(--line)"><p class="sub">في بيانات تجريبية في البرنامج (قطع وحجوزات ومصاريف أمثلة).</p><button class="btn bad" style="align-self:flex-start" onclick="A.clearDemo()">مسح البيانات التجريبية</button>':''));
   return h;
 }
+
+const OT={rent:['إيجار','info'],buy:['شراء','good'],custom:['تفصيل فستان','warn']};
+const OS={new:['جديد','warn'],contacted:['اتواصلنا','info'],done:['اتنفّذ','good'],cancelled:['ملغي','bad']};
+function vOrders(){
+  const f=U.f.or||{};
+  let os=Object.keys(S.orders).map(id=>Object.assign({id},S.orders[id])).sort((a,b)=>(b.createdAt||'')<(a.createdAt||'')?-1:1);
+  const cnt=st=>os.filter(o=>o.status===st).length;
+  if(f.st)os=os.filter(o=>o.status===f.st);
+  if(f.ty)os=os.filter(o=>o.type===f.ty);
+  const chips=Object.keys(OS).map(k=>'<button class="pill '+(f.st===k?'on':'')+'" onclick="A.setF(\'or\',\'st\',\''+(f.st===k?'':k)+'\')">'+OS[k][0]+' <b>'+cnt(k)+'</b></button>').join('');
+  const types=Object.keys(OT).map(k=>'<button class="pill '+(f.ty===k?'on':'')+'" onclick="A.setF(\'or\',\'ty\',\''+(f.ty===k?'':k)+'\')">'+OT[k][0]+'</button>').join('');
+  const card=o=>{
+    const it=S.items[o.itemCode]||{};
+    const ph=(o.phone||'').replace(/\D/g,'');
+    let body='';
+    if(o.type==='custom'){
+      body=(o.eventDate?'<div class="kv"><span>تاريخ المناسبة</span><b>'+fd(o.eventDate)+'</b></div>':'')+(o.notes?'<div class="kv"><span>الوصف</span><b style="text-align:right;white-space:pre-wrap">'+E(o.notes)+'</b></div>':'');
+    }else{
+      body='<div class="kv"><span>القطعة</span><b>#'+E(o.itemCode)+' · '+E(o.itemName||it.name||'')+'</b></div><div class="kv"><span>السعر المعروض</span><b>'+money(o.price)+'</b></div>'+(o.type==='rent'?'<div class="kv"><span>المدة المطلوبة</span><b>'+fd(o.dFrom)+' ← '+fd(o.dTo)+'</b></div>':'')+(o.address?'<div class="kv"><span>العنوان</span><b style="text-align:right">'+E(o.address)+'</b></div>':'')+(o.notes?'<div class="kv"><span>ملاحظات</span><b style="text-align:right;white-space:pre-wrap">'+E(o.notes)+'</b></div>':'');
+    }
+    return '<div class="card" style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag '+OT[o.type||'rent'][1]+'">'+OT[o.type||'rent'][0]+'</span><span class="tag '+(OS[o.status]||OS.new)[1]+'">'+(OS[o.status]||OS.new)[0]+'</span><span class="sub" style="margin-inline-start:auto">'+(o.createdAt?fd(o.createdAt.slice(0,10))+' '+ft(new Date(o.createdAt).toTimeString().slice(0,5)):'')+'</span></div>'
+    +'<div style="display:flex;gap:12px;align-items:center">'+(o.photo?'<img class="pimg" alt="" src="'+o.photo+'" style="cursor:pointer;width:70px;height:70px" onclick="A.ordPhoto(\''+o.id+'\')">':'')+'<div style="flex:1;min-width:0"><b style="font-size:17px">'+E(o.name||'')+'</b><div class="tnum"><a href="tel:'+E(ph)+'" style="color:var(--brand)">'+E(o.phone||'')+'</a></div></div></div>'+body
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'
+    +(ph?'<a class="btn sm good" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/2'+E(ph)+'">'+ic('wa')+'واتساب</a><a class="btn sm out" style="text-decoration:none" href="tel:'+E(ph)+'">اتصال</a>':'')
+    +(o.type==='rent'&&o.status!=='done'&&o.status!=='cancelled'?'<button class="btn sm" onclick="A.ordBook(\''+o.id+'\')">حوّلي لحجز</button>':'')
+    +(o.status==='new'?'<button class="btn sm sec" onclick="A.ordSt(\''+o.id+'\',\'contacted\')">اتواصلنا</button>':'')
+    +(o.status!=='done'?'<button class="btn sm sec" onclick="A.ordSt(\''+o.id+'\',\'done\')">اتنفّذ</button>':'')
+    +(o.status!=='cancelled'?'<button class="btn sm out" onclick="A.ordSt(\''+o.id+'\',\'cancelled\')">إلغاء</button>':'<button class="btn sm out" onclick="A.ordSt(\''+o.id+'\',\'new\')">رجّعيه جديد</button>')
+    +(isAdm()?'<button class="btn sm out" onclick="A.ordDel(\''+o.id+'\')">حذف</button>':'')+'</div></div>';
+  };
+  const link=location.origin+location.pathname.replace(/[^\/]*$/,'')+'store.html';
+  return '<div class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="pills">'+chips+'</div><div class="pills">'+types+'</div></div><div class="card"><b>رابط موقع العملاء</b><div class="mono" style="margin-top:6px;direction:ltr;text-align:left">'+E(link)+'</div><button class="btn sm out" style="margin-top:8px" onclick="A.copy(\''+encodeURIComponent(link)+'\')">نسخ الرابط</button></div><div class="gauto">'+(os.length?os.map(card).join(''):'<div class="card mu">مفيش طلبات.</div>')+'</div>';
+}
 function vGuide(){
   const S2=[['الرئيسية','أرقام الشهر والحجوزات النشطة وتوزيع القطع، وعمليات اليوم والتنبيهات العاجلة. التنبيهات بتتحسب من تواريخ الحجوزات، مش بتتكتب باليد.'],['الفساتين','كل قطعة ليها كود (DR-1001 للفساتين وBG-6001 للشنط). حالة القطعة بتتحسب من حجوزاتها: متاحة، خارجة للتأجير، تحت التجهيز، أو محجوزة قريب.'],['الحجوزات','الحجز بيمشي: قبل التسليم ← مع العميلة ← اتسلم ورجع. الإلغاء بس من "قبل التسليم". البرنامج مش بيسمح بحجز نفس القطعة لفترتين متداخلتين، وبيحسب أيام التجهيز بعد الإرجاع.'],['المدفوع والمتبقي','بيتحسبوا من سجل الدفعات، مش بتكتبيهم باليد. أي دفعة بتتسجّل من جوه الحجز، ومينفعش تزيد عن إجمالي الإيجار.'],['التأمين','بيتاخد وقت الحجز أو التسليم، وبيتسجل لوحده بعيد عن الإيراد والمصاريف. وقت الاستلام بترديه كامل أو بتخصمي منه غرامة تلف.'],['صفحة اليوم','كل اللي دخل وخرج في اليوم، والمصاريف اليومية، وملاحظات اليوم، ورسائل واتساب لعمليات بكرة.'],['تجهيزات','قطع راجعة محتاجة تجهيز، وتسليمات الأيام الجاية. علّمي "جاهزة" لما القطعة تخلص.'],['العملاء','ملف العميلة فيه المقاسات وتاريخ حجوزاتها. البحث بيتجاهل اختلاف الهمزة والتاء المربوطة، فمتفتحيش ملف جديد لعميلة موجودة. وكمان الموبايل بيمنع التكرار.'],['التقارير والأرصدة','للمديرة بس. صافي الربح بيتحسب إيرادات ناقص مصاريف، والتأمينات مش بتدخل في الإيراد.'],['الصلاحيات','الموظفة مش بتشوف الإيرادات ولا المصاريف ولا أسعار الشراء. ودي بتتحمي في قاعدة البيانات نفسها لو الموظفة مشاركة كـ Contributor.']];
   return '<div class="card">'+S2.map((s,i)=>'<details class="acc" '+(i===0?'open':'')+'><summary>'+s[0]+'</summary><p style="margin:6px 0">'+s[1]+'</p></details>').join('')+'</div>';
@@ -747,7 +782,7 @@ const A={
   itemForm(code){U.pend=null;U.rmPhoto=false;
     const it=code?S.items[code]:{kind:'dress'},adm=isAdm();
     const nextCode=k=>{const pre=k==='bag'?'BG-6':'DR-1';const nums=Object.keys(S.items).filter(c=>c.startsWith(pre.slice(0,2))).map(c=>+c.slice(3)).filter(n=>n);return pre.slice(0,3)+((nums.length?Math.max(...nums):(k==='bag'?6000:1000))+1)};
-    openM(sheet(code?'تعديل قطعة':'قطعة جديدة','<div class="fg">'+fld('النوع','<select class="in" id="ik" onchange="if(!'+(code?'1':'0')+')document.getElementById(\'ic\').value=A.nextCode(this.value)"><option value="dress" '+(it.kind==='dress'?'selected':'')+'>فستان</option><option value="bag" '+(it.kind==='bag'?'selected':'')+'>شنطة / كلتش</option></select>')+fld('الكود','<input class="in" id="ic" '+(code?'disabled':'')+' value="'+E(code||nextCode('dress'))+'">')+fld('الاسم أو الوصف','<input class="in" id="in_" value="'+E(it.name||'')+'">')+fld('اللون','<input class="in" id="il" value="'+E(it.color||'')+'">')+fld('سعر الإيجار','<input class="in" id="ir" inputmode="decimal" value="'+E(it.rent||'')+'">')+fld('مبلغ التأمين','<input class="in" id="id_" inputmode="decimal" value="'+E(it.deposit||'')+'">')+(adm?fld('سعر الشراء (للمديرة بس)','<input class="in" id="icost" inputmode="decimal" value="'+E((S.costs[code]||{}).cost||'')+'">'):'')+'</div>'+A.photoField(code)+'<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ioff" '+(it.off?'checked':'')+'> غير متاحة للإيجار (اتباعت أو بره الخدمة)</label><button class="btn" onclick="A.saveItem(\''+(code||'')+'\')">حفظ</button>'),{st:1});
+    openM(sheet(code?'تعديل قطعة':'قطعة جديدة','<div class="fg">'+fld('النوع','<select class="in" id="ik" onchange="if(!'+(code?'1':'0')+')document.getElementById(\'ic\').value=A.nextCode(this.value)"><option value="dress" '+(it.kind==='dress'?'selected':'')+'>فستان</option><option value="bag" '+(it.kind==='bag'?'selected':'')+'>شنطة / كلتش</option></select>')+fld('الكود','<input class="in" id="ic" '+(code?'disabled':'')+' value="'+E(code||nextCode('dress'))+'">')+fld('الاسم أو الوصف','<input class="in" id="in_" value="'+E(it.name||'')+'">')+fld('اللون','<input class="in" id="il" value="'+E(it.color||'')+'">')+fld('سعر الإيجار','<input class="in" id="ir" inputmode="decimal" value="'+E(it.rent||'')+'">')+fld('مبلغ التأمين','<input class="in" id="id_" inputmode="decimal" value="'+E(it.deposit||'')+'">')+fld('سعر البيع للعميلة (اختياري، يظهر في الموقع)','<input class="in" id="isale" inputmode="decimal" value="'+E(it.salePrice||'')+'">')+(adm?fld('سعر الشراء (للمديرة بس)','<input class="in" id="icost" inputmode="decimal" value="'+E((S.costs[code]||{}).cost||'')+'">'):'')+'</div>'+A.photoField(code)+'<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ioff" '+(it.off?'checked':'')+'> غير متاحة للإيجار (اتباعت أو بره الخدمة)</label><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ihide" '+(it.hideStore?'checked':'')+'> إخفاء من موقع العملاء</label><button class="btn" onclick="A.saveItem(\''+(code||'')+'\')">حفظ</button>'),{st:1});
   },
   photoField(code){const p=code&&S.photos[code];return '<div class="f"><label>صورة القطعة</label><div style="display:flex;gap:12px;align-items:center"><img id="iprev" class="pimg" alt="" style="'+(p?'':'display:none')+'" src="'+(p?p.data:'')+'"><input type="file" id="iph" accept="image/*" onchange="A.photoPick(this)" class="in" style="padding-top:8px"></div>'+(p?'<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="irm" onchange="U.rmPhoto=this.checked"> مسح الصورة الحالية</label>':'')+'</div>'},
   photoPick(inp){const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const M=640,k=Math.min(1,M/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);let q=.78,d=cv.toDataURL('image/jpeg',q);while(d.length>180000&&q>.4){q-=.1;d=cv.toDataURL('image/jpeg',q)}U.pend=d;const pv=$('#iprev');if(pv){pv.src=d;pv.style.display='block'}};im.onerror=()=>toast('الصورة دي مش مدعومة');im.src=rd.result};rd.readAsDataURL(f)},
@@ -756,7 +791,7 @@ const A={
     const c=(code||val('ic')).trim().toUpperCase();
     if(!/^[A-Z]{2}-\d+$/.test(c)){toast('الكود شكله DR-1001 أو BG-6001');return}
     if(!code&&S.items[c]){toast('الكود ده موجود');return}
-    const d={kind:val('ik'),name:val('in_').trim(),color:val('il').trim(),rent:+val('ir')||0,deposit:+val('id_')||0,off:$('#ioff').checked};
+    const d={kind:val('ik'),name:val('in_').trim(),color:val('il').trim(),rent:+val('ir')||0,deposit:+val('id_')||0,off:$('#ioff').checked,salePrice:+val('isale')||0,hideStore:$('#ihide').checked};
     if(await run(async()=>{await save('items',c,Object.assign({},S.items[c]||{},d));if(isAdm()&&document.getElementById('icost'))await save('costs',c,{cost:+val('icost')||0});if(U.pend)await save('photos',c,{data:U.pend});else if(U.rmPhoto)await del('photos',c);logA(code?'تعديل قطعة':'قطعة جديدة',c)},'اتحفظت'))closeM();
   },
   itemView(code){openM(()=>{const it=S.items[code];if(!it)return null;const inf=itemInfo(code),adm=isAdm(),bs=bkList().filter(b=>b.itemCode===code&&b.status!=='cancelled').sort((a,b)=>b.deliverDate<a.deliverDate?-1:1);const kv=(l,v)=>'<div class="kv"><span>'+l+'</span><b>'+v+'</b></div>';
@@ -930,11 +965,11 @@ const A={
     const rd=new FileReader();
     rd.onload=()=>{
       let j;try{j=JSON.parse(rd.result)}catch(e){toast('الملف ده مش نسخة احتياطية صحيحة');inp.value='';return}
-      const cols=['items','photos','costs','clients','bookings','payments','expenses','notes','cfg'];
+      const cols=['items','photos','costs','clients','bookings','payments','expenses','notes','cfg','orders'];
       const have=cols.filter(c=>j[c]&&typeof j[c]==='object');
       if(!have.length){toast('مفيش بيانات معروفة في الملف');inp.value='';return}
       U.restore=j;U.restoreCols=have;
-      const LB={items:'قطع',photos:'صور',costs:'أسعار شراء',clients:'عميلات',bookings:'حجوزات',payments:'دفعات',expenses:'مصاريف',notes:'ملاحظات',cfg:'إعدادات'};
+      const LB={items:'قطع',photos:'صور',costs:'أسعار شراء',clients:'عميلات',bookings:'حجوزات',payments:'دفعات',expenses:'مصاريف',notes:'ملاحظات',cfg:'إعدادات',orders:'طلبات الموقع'};
       openM(sheet('استرجاع النسخة الاحتياطية','<p>النسخة اتحفظت يوم <b>'+E((j.exportedAt||'').slice(0,10)||'غير معروف')+'</b> وفيها:</p><div class="list">'+have.map(c=>'<div class="kv"><span>'+LB[c]+'</span><b>'+Object.keys(j[c]).length+'</b></div>').join('')+'</div><p class="sub">البيانات اللي ليها نفس الرقم هتتبدّل بالموجودة في النسخة. أي بيانات جديدة اتسجّلت بعد النسخة مش هتتمسح. الأمر ده مينفعش يتراجع عنه.</p><button class="btn bad" onclick="A.doRestore()">أيوه، استرجعي</button><button class="btn out" onclick="A.close()">إلغاء</button>'),{st:1});
     };
     rd.readAsText(f);
@@ -954,10 +989,17 @@ const A={
       setTimeout(()=>location.reload(),1200);
     }catch(e){toast('الاسترجاع وقف عند مشكلة: '+((e&&e.message)||'جرّبي تاني'))}
   },
+
+  async ordSt(id,st){await run(async()=>{await patch('orders',id,{status:st});logA('طلب موقع',(S.orders[id]||{}).name+' ← '+OS[st][0])},'اتحدّث')},
+  async ordDel(id){openM(sheet('حذف الطلب','<p>هيتحذف الطلب نهائيًا.</p><button class="btn bad" onclick="A.ordDelGo(\''+id+'\')">أيوه، احذفي</button>'),{st:1})},
+  async ordDelGo(id){if(await run(async()=>{await del('orders',id)},'اتحذف'))closeM()},
+  ordPhoto(id){const o=S.orders[id];if(!o||!o.photo)return;openM(sheet('صورة التصميم المطلوب','<img class="pimg big" alt="" src="'+o.photo+'"><button class="btn" onclick="A.ordDl(\''+id+'\')">تحميل الصورة</button>'),{st:1})},
+  async ordDl(id){const o=S.orders[id];if(!o||!o.photo||!dl)return;try{const b=await (await fetch(o.photo)).blob();await dl.save({filename:'design-'+(o.name||'order')+'.jpg',data:b})}catch(e){toast('مقدرتش أحمّل الصورة')}},
+  ordBook(id){const o=S.orders[id];if(!o)return;A.bkForm(o.itemCode,null,null,o.dFrom,o.dTo);setTimeout(()=>{const n=$('#bn'),p=$('#bp');if(n)n.value=o.name||'';if(p){p.value=o.phone||'';A.pickClientP(o.phone||'')}},120)},
   async reloadUsers(){await loadProfiles();render();toast(U.userErr?'مقدرتش أحمّل الحسابات':'اتحدّثت القايمة')},
   async backup(){
     if(!dl){toast('التحميل مش متاح هنا');return}
-    const data=JSON.stringify({exportedAt:new Date().toISOString(),items:S.items,costs:S.costs,clients:S.clients,bookings:S.bookings,payments:S.payments,expenses:S.expenses,notes:S.notes,cfg:S.cfg,photos:S.photos},null,1);
+    const data=JSON.stringify({exportedAt:new Date().toISOString(),items:S.items,costs:S.costs,clients:S.clients,bookings:S.bookings,payments:S.payments,expenses:S.expenses,notes:S.notes,cfg:S.cfg,photos:S.photos,orders:S.orders},null,1);
     try{await dl.save({filename:'su-dresses-backup-'+TODAY()+'.json',data});toast('اتحفظت النسخة')}catch(e){if(!e||e.code!=='declined')toast('مقدرتش أحمّل النسخة')}
   },
   async csv(){
