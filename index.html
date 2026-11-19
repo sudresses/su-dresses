@@ -162,6 +162,8 @@ textarea.in{padding:10px 14px;height:auto;min-height:70px}
 <div id="modal"></div>
 <div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"><\/script>')</script>
+<script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.57.4/umd/supabase.min.js"><\/script>')</script>
 <script src="config.js"></script>
 <script>
 (function(){
@@ -387,7 +389,7 @@ function alerts(){
 }
 function render(){
   const root=$('#app');
-  if(!db){root.innerHTML='<div class="login"><div class="card"><h2>SU Dresses</h2><p class="mu">إعدادات الاتصال بقاعدة البيانات ناقصة. افتحي ملف config.js وحطي رابط Supabase والمفتاح.</p></div></div>';return}
+  if(!db){const nolib=!window.supabase;root.innerHTML='<div class="login"><div class="card"><h2>SU Dresses</h2><p class="mu">'+(nolib?'تعذّر تحميل مكتبة الاتصال (النت بطيء أو محجوب). اعملي تحديث للصفحة، ولو اتكررت جرّبي نت تاني.':'إعدادات الاتصال بقاعدة البيانات ناقصة. افتحي ملف config.js وحطي رابط Supabase والمفتاح.')+'</p><button class="btn" onclick="location.reload()">تحديث</button></div></div>';return}
   if(!L.boot){root.innerHTML='<div class="login"><div class="card"><h2>SU Dresses</h2><p class="mu">بنحمّل البيانات…</p></div></div>';return}
   if(!U.me){
     let ph='';try{ph=localStorage.getItem('su_ph')||''}catch(e){}
