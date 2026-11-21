@@ -67,6 +67,20 @@ header{position:sticky;top:0;z-index:30;background:rgba(250,246,241,.94);backdro
 .ph{aspect-ratio:3/4;background:var(--sand);display:grid;place-items:center;color:var(--accent);overflow:hidden}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .ph svg{width:48px;height:48px;opacity:.5}
+.ph{position:relative}
+.nb{position:absolute;top:10px;inset-inline-start:10px;background:var(--brand);color:#fff;border-radius:99px;padding:2px 12px;font-size:12px;font-weight:700;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.fgrp{display:flex;gap:8px;flex-wrap:wrap;width:100%;align-items:center}
+.fgrp .lb{font-weight:700;color:var(--muted);font-size:13px;min-width:62px}
+.tools{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin:14px 0 4px;display:flex;flex-direction:column;gap:10px}
+.srow,.drow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.srow .in{flex:1;min-width:150px}.srow select.in{flex:none;width:auto;min-width:130px}
+.drow b{font-size:14px}.drow .in{width:auto;flex:1;min-width:130px}.drow label{display:flex;gap:6px;align-items:center;font-size:14px;font-weight:600}
+.drow[hidden]{display:none}
+.bz{position:absolute;bottom:10px;inset-inline-start:10px;background:#fff;color:var(--bad);border-radius:99px;padding:2px 12px;font-size:12px;font-weight:700;border:1px solid var(--bad)}
+.card.busy .ph img{opacity:.45}
+[data-view]{cursor:pointer}
+.big{width:100%;aspect-ratio:3/4;max-height:56vh;border-radius:16px;background:var(--sand);overflow:hidden;display:grid;place-items:center;position:relative}.big img{width:100%;height:100%;object-fit:contain;background:var(--sand)}
+.pill.nw{border-color:var(--brand);color:var(--brand)}.pill.nw.on{color:#fff}
 .cb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
 .cb b{font-size:17px}
 .cb .m{color:var(--muted);font-size:13px}
@@ -115,6 +129,7 @@ textarea.in{padding:10px 14px;height:auto;min-height:90px;resize:vertical}
 
 <div class="wrap"><div class="feat"><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.800 7L4 20l1.200-4.500A8 8 0 1 1 21 12z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg><span><b>خدمة عملاء متاحة</b><small>واتساب أو اتصال</small></span></div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span><b>حجز سهل</b><small>اختاري التواريخ وابعتي الطلب</small></span></div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 5-2 3 3 10H7l3-10-2-3z"/></svg><span><b>تفصيل حسب طلبك</b><small>ابعتي صورة التصميم</small></span></div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800z"/></svg><span><b>قطع مختارة بعناية</b><small>للإيجار أو الشراء</small></span></div></div></div>
 <main class="wrap">
+  <div class="tools" id="tools"><div class="srow"><input class="in" id="qs" placeholder="ابحثي بالاسم أو اللون أو الكود" aria-label="بحث"><select class="in" id="sort" aria-label="ترتيب"><option value="new">الأحدث</option><option value="lo">السعر: الأقل</option><option value="hi">السعر: الأعلى</option></select></div><div class="drow" id="datebox" hidden><b>متاحة في تاريخ:</b><input class="in" type="date" id="df" aria-label="من"><input class="in" type="date" id="dt" aria-label="إلى"><label><input type="checkbox" id="onlyav" checked> المتاحة فقط</label><button type="button" class="btn out sm" id="dclr">مسح</button></div></div>
   <div class="pills" id="pills"></div>
   <div id="items"><div class="grid" id="grid"></div><p class="note" id="msg" style="text-align:center"></p></div>
   <section class="tailor" id="tailor"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg></div><div><h2>تفصيل فستان بمواصفات خاصة</h2><p>ابعتي اسمك ورقم موبايلك وصورة الفستان اللي عايزاه، وهنتواصل معاكي نحدد المقاسات والسعر وميعاد التسليم.</p></div><button class="btn" id="tailorBtn">اطلبي تفصيل</button></section>
@@ -140,7 +155,14 @@ const todayS=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMont
 const normPhone=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'');
 const okPhone=p=>/^01[0125]\d{8}$/.test(p);
 const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 5-2 3 3 10H7l3-10-2-3z"/></svg>';
-let sb=null,items=[],photos={},kind='';
+let sb=null,items=[],photos={},kind='',col='',cat='',qs='',sortBy='new',df='',dt='',onlyAv=true,busy=[];
+const CATS=[['soiree','سواريه وخطوبة'],['katb','كتب كتاب'],['wedding','زفاف']];
+const addD=(d,n)=>{const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const rng=()=>{const a=df,b=dt||df;return a&&b&&b>=a?[a,b]:null};
+const isBusy=code=>{const r=rng();if(!r)return false;return busy.some(x=>x.code===code&&r[0]<x.d2&&x.d1<addD(r[1],+x.prep||0))};
+const codeNum=c=>+String(c).replace(/\D/g,'')||0;
+const siteUrl=code=>location.href.split('#')[0].split('?')[0]+'#'+code;
+const CATN=Object.fromEntries(CATS);
 let pendingPhoto=null;
 
 (function(){
@@ -161,10 +183,35 @@ let pendingPhoto=null;
 })();
 function msg(t){$('#msg').textContent=t||''}
 function render(){
-  const list=items.filter(i=>!kind||i.kind===kind);
-  $('#pills').innerHTML=[['','الكل'],['dress','فساتين'],['bag','شنط وكلتش']].map(k=>'<button class="pill '+(kind===k[0]?'on':'')+'" data-k="'+k[0]+'">'+k[1]+'</button>').join('');
-  $('#grid').innerHTML=list.map(i=>'<article class="card"><div class="ph" data-ph="'+E(i.code)+'">'+(photos[i.code]?'<img alt="'+E(i.name)+'" src="'+photos[i.code]+'">':ICON)+'</div><div class="cb"><b>'+E(i.name||i.code)+'</b><div class="m">'+(i.color?E(i.color)+' · ':'')+'#'+E(i.code)+'</div><div class="price">'+(+i.rent?'<span>إيجار '+money(i.rent)+'</span>':'')+(+i.salePrice?'<span>شراء '+money(i.salePrice)+'</span>':'')+'</div><button class="btn sm" data-order="'+E(i.code)+'">اطلبي الآن</button></div></article>').join('');
+  if(kind==='bag')cat='';
+  const q=qs.trim().toLowerCase();
+  let list=items.filter(i=>(!kind||i.kind===kind)&&(col==='new'?i.isNew:col==='old'?!i.isNew:true)&&(!cat||i.cat===cat)&&(!q||(i.code+' '+(i.name||'')+' '+(i.color||'')).toLowerCase().includes(q)));
+  const r=rng();
+  if(r&&onlyAv)list=list.filter(i=>!isBusy(i.code));
+  list.sort((a,b)=>sortBy==='lo'?(+a.rent||1e9)-(+b.rent||1e9):sortBy==='hi'?(+b.rent||0)-(+a.rent||0):((b.isNew?1:0)-(a.isNew?1:0))||codeNum(b.code)-codeNum(a.code));
+  const pill=(on,attr,v,t,x)=>'<button class="pill '+(x||'')+' '+(on?'on':'')+'" data-'+attr+'="'+v+'">'+t+'</button>';
+  let h='<div class="fgrp"><span class="lb">Collection</span>'+[['','الكل'],['new','✦ New Collection'],['old','الموجود حاليًا']].map(k=>pill(col===k[0],'col',k[0],k[1],k[0]==='new'?'nw':'')).join('')+'</div>';
+  h+='<div class="fgrp"><span class="lb">النوع</span>'+[['','الكل'],['dress','فساتين'],['bag','شنط وكلتش']].map(k=>pill(kind===k[0],'k',k[0],k[1])).join('')+'</div>';
+  if(kind!=='bag')h+='<div class="fgrp"><span class="lb">المناسبة</span>'+pill(!cat,'cat','','الكل')+CATS.map(k=>pill(cat===k[0],'cat',k[0],'فساتين '+k[1])).join('')+'</div>';
+  $('#pills').innerHTML=h;
+  $('#grid').innerHTML=list.map(i=>{const bz=r&&isBusy(i.code);return '<article class="card'+(bz?' busy':'')+'"><div class="ph" data-view="'+E(i.code)+'" data-ph="'+E(i.code)+'">'+(photos[i.code]?'<img alt="'+E(i.name)+'" src="'+photos[i.code]+'">':ICON)+(i.isNew?'<span class="nb">New Collection</span>':'')+(bz?'<span class="bz">محجوز في التواريخ دي</span>':'')+'</div><div class="cb"><b data-view="'+E(i.code)+'">'+E(i.name||i.code)+'</b><div class="m">'+(CATN[i.cat]?'فساتين '+CATN[i.cat]+' · ':'')+(i.color?E(i.color)+' · ':'')+'#'+E(i.code)+'</div><div class="price">'+(+i.rent?'<span>إيجار '+money(i.rent)+'</span>':'')+(+i.salePrice?'<span>شراء '+money(i.salePrice)+'</span>':'')+'</div><button class="btn sm" data-order="'+E(i.code)+'"'+(bz?' disabled':'')+'>'+(bz?'غير متاح في التواريخ دي':'اطلبي الآن')+'</button></div></article>'}).join('');
+  if(items.length)msg(list.length?'':(r&&onlyAv?'مفيش قطع متاحة في التواريخ دي بالاختيار ده. جرّبي تواريخ أو تصنيف تاني.':'مفيش قطع في الاختيار ده دلوقتي. جرّبي تصنيف تاني.'));
 }
+function itemView(code){
+  const it=items.find(i=>i.code===code);if(!it)return;
+  const bz=rng()&&isBusy(code);
+  const txt='شوفي الفستان ده من SU Dresses: '+(it.name||code)+(+it.rent?' - إيجار '+money(it.rent):'')+'\n'+siteUrl(code);
+  open(it.name||it.code,'<div class="big">'+(photos[code]?'<img alt="'+E(it.name||'')+'" src="'+photos[code]+'">':ICON)+(it.isNew?'<span class="nb">New Collection</span>':'')+'</div>'
+   +'<div class="note">#'+E(code)+(CATN[it.cat]?' · فساتين '+CATN[it.cat]:'')+(it.color?' · '+E(it.color):'')+'</div>'
+   +'<div class="price">'+(+it.rent?'<span>إيجار '+money(it.rent)+'</span>':'')+(+it.salePrice?'<span>شراء '+money(it.salePrice)+'</span>':'')+'</div>'
+   +(bz?'<div class="err">محجوز في التواريخ اللي اخترتيها.</div>':'')
+   +'<button class="btn" id="vorder"'+(bz?' disabled':'')+'>اطلبي الآن</button>'
+   +'<div class="row"><button type="button" class="btn out sm" id="vcopy">نسخ رابط الفستان</button><a class="btn out sm" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(txt)+'">مشاركة على واتساب</a></div>');
+  try{history.replaceState(null,'','#'+code)}catch(e){}
+  $('#vorder').onclick=()=>{close();orderForm(code)};
+  $('#vcopy').onclick=async()=>{const b=$('#vcopy');try{await navigator.clipboard.writeText(siteUrl(code));b.textContent='اتنسخ ✓'}catch(e){b.textContent=siteUrl(code)}};
+}
+function fromHash(){const h=decodeURIComponent(location.hash.slice(1));if(/^[A-Za-z]{2}-\d+$/.test(h)){const it=items.find(i=>i.code.toUpperCase()===h.toUpperCase());if(it)itemView(it.code)}}
 async function loadPhotos(codes){
   for(let i=0;i<codes.length;i+=8){
     const part=codes.slice(i,i+8);
@@ -183,8 +230,10 @@ async function boot(){
   const r=await sb.from('docs').select('id,data').eq('collection','items').order('id');
   if(r.error){msg('مقدرناش نحمّل الفساتين دلوقتي. جرّبي تاني بعد شوية.');return}
   items=r.data.map(x=>Object.assign({code:x.id},x.data)).filter(i=>!i.off&&!i.hideStore);
+  items.forEach(i=>{if(i.cat==='engage')i.cat='soiree'});
   msg(items.length?'':'لسه مفيش قطع معروضة. ارجعي قريب.');
-  render();loadPhotos(items.map(i=>i.code));
+  render();loadPhotos(items.map(i=>i.code));fromHash();
+  try{const rb=await sb.rpc('store_busy');if(!rb.error&&Array.isArray(rb.data)){busy=rb.data;$('#datebox').hidden=false;render()}}catch(e){}
 }
 
 /* ---------- modal helpers ---------- */
@@ -192,7 +241,7 @@ function open(title,html){
   $('#modal').innerHTML='<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true"><div class="mh"><h3>'+E(title)+'</h3><button class="x" id="mx" aria-label="إغلاق">×</button></div><div class="mb">'+html+'</div></div></div>';
   $('#mx').onclick=close;$('#ov').onclick=e=>{if(e.target.id==='ov')close()};
 }
-function close(){$('#modal').innerHTML='';pendingPhoto=null}
+function close(){$('#modal').innerHTML='';pendingPhoto=null;if(/^#[A-Za-z]{2}-\d+$/.test(location.hash)){try{history.replaceState(null,'',location.href.split('#')[0])}catch(e){}}}
 function done(title,text){
   const wa=C.whatsapp?'<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+E(String(C.whatsapp).replace(/\D/g,''))+'">كلّمينا على واتساب</a>':'';
   open(title,'<div class="ok"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div><b style="font-size:20px">وصلنا طلبك</b><p style="margin:0;color:var(--muted)">'+E(text)+'</p>'+wa+'<button class="btn out" id="okx">تمام</button></div>');
@@ -218,7 +267,7 @@ function orderForm(code){
    '<div style="display:flex;gap:12px;align-items:center"><div class="ph" style="width:72px;aspect-ratio:1;border-radius:14px;flex:none">'+(photos[code]?'<img alt="" src="'+photos[code]+'">':ICON)+'</div><div><b>'+E(it.name||'')+'</b><div class="note">#'+E(code)+(it.color?' · '+E(it.color):'')+'</div></div></div>'
    +((canRent&&canBuy)?'<div class="seg" id="seg"><button type="button" data-t="rent" class="on">إيجار '+money(it.rent)+'</button><button type="button" data-t="buy">شراء '+money(it.salePrice)+'</button></div>':'<div class="note">'+(canRent?'إيجار بـ '+money(it.rent):'شراء بـ '+money(it.salePrice))+'</div>')
    +'<div class="fg"><div class="f"><label for="oname">الاسم</label><input class="in" id="oname" autocomplete="name"></div><div class="f"><label for="ophone">رقم الموبايل</label><input class="in" id="ophone" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx"></div></div>'
-   +'<div class="fg" id="dates"><div class="f"><label for="od1">من تاريخ</label><input class="in" type="date" id="od1" min="'+todayS()+'"></div><div class="f"><label for="od2">إلى تاريخ</label><input class="in" type="date" id="od2" min="'+todayS()+'"></div></div>'
+   +'<div class="fg" id="dates"><div class="f"><label for="od1">من تاريخ</label><input class="in" type="date" id="od1" min="'+todayS()+'" value="'+(rng()?rng()[0]:'')+'"></div><div class="f"><label for="od2">إلى تاريخ</label><input class="in" type="date" id="od2" min="'+todayS()+'" value="'+(rng()?rng()[1]:'')+'"></div></div>'
    +'<div class="f"><label for="oaddr">العنوان (للتوصيل، اختياري)</label><input class="in" id="oaddr" autocomplete="street-address"></div>'
    +'<div class="f"><label for="onote">ملاحظات</label><textarea class="in" id="onote" style="min-height:70px"></textarea></div>'
    +'<input class="hp" id="oweb" tabindex="-1" autocomplete="off" aria-hidden="true">'
@@ -233,7 +282,8 @@ function orderForm(code){
     if(name.length<2){err.textContent='اكتبي اسمك.';return}
     if(!okPhone(phone)){err.textContent='رقم الموبايل لازم يكون 11 رقم ويبدأ بـ 01.';return}
     let d1='',d2='';
-    if(type==='rent'){d1=$('#od1').value;d2=$('#od2').value;if(!d1||!d2||d2<d1||d1<todayS()){err.textContent='اختاري تواريخ الإيجار صح.';return}}
+    if(type==='rent'){d1=$('#od1').value;d2=$('#od2').value;if(!d1||!d2||d2<d1||d1<todayS()){err.textContent='اختاري تواريخ الإيجار صح.';return}
+      if(busy.some(x=>x.code===code&&d1<x.d2&&x.d1<addD(d2,+x.prep||0))){err.textContent='الفستان ده محجوز في الفترة دي. اختاري تواريخ تانية.';return}}
     send({type,name,phone,itemCode:code,itemName:it.name||'',price:type==='rent'?+it.rent:+it.salePrice,dFrom:d1,dTo:d2,address:$('#oaddr').value.trim().slice(0,300),notes:$('#onote').value.trim().slice(0,800)},$('#osend'),err,'وصلنا طلبك','هنكلّمك على الرقم اللي كتبتيه في أقرب وقت.');
   };
 }
@@ -271,10 +321,23 @@ function tailorForm(){
 }
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-order],[data-k]');if(!t)return;
-  if(t.dataset.order)orderForm(t.dataset.order);
+  const t=e.target.closest('[data-order],[data-k],[data-col],[data-cat],[data-view]');if(!t)return;
+  if(t.dataset.view)itemView(t.dataset.view);
+  else if(t.dataset.order)orderForm(t.dataset.order);
   else if(t.dataset.k!==undefined){kind=t.dataset.k;render()}
+  else if(t.dataset.col!==undefined){col=t.dataset.col;render()}
+  else if(t.dataset.cat!==undefined){cat=t.dataset.cat;render()}
 });
+(function(){
+  const t=todayS();$('#df').min=t;$('#dt').min=t;
+  $('#qs').oninput=e=>{qs=e.target.value;render()};
+  $('#sort').onchange=e=>{sortBy=e.target.value;render()};
+  $('#df').onchange=e=>{df=e.target.value;if(dt&&dt<df){dt=df;$('#dt').value=df}render()};
+  $('#dt').onchange=e=>{dt=e.target.value;if(df&&dt<df){df=dt;$('#df').value=dt}render()};
+  $('#onlyav').onchange=e=>{onlyAv=e.target.checked;render()};
+  $('#dclr').onclick=()=>{df='';dt='';$('#df').value='';$('#dt').value='';render()};
+  window.addEventListener('hashchange',fromHash);
+})();
 ['hdrTailor','heroTailor','tailorBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=tailorForm});
 render();boot();
 })();
